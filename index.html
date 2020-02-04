@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<meta charset='utf-8' />
+		<title>Generátor kvízů</title>
+		<style type='text/css'>
+				body {
+						font: 0.8em Arial, sans-serif;
+						background-color: white;
+				}
+				div#container {
+					font-size: 2em;
+					max-width: 800px;
+					margin: 2em auto 0 auto;
+					text-align: center;
+				}
+				div#question, div#answer {
+					padding: 1em 0;
+				}
+				div#answer {
+					color: orange;
+				}
+		</style>
+</head>
+<body>
+<div id='container'>
+	<div id='question'></div>
+	<div id='control-buttons'>
+		<button id='get-answer'>Ukaž odpověď</button>
+		<button id='next-question'>Další otázka</button>
+	</div>
+	<div id='answer'></div>
+</div>
+
+<script type='text/javascript'>
+async function getQuestions() {
+	if (filesAvailable.length === 0) {
+		console.log('dosla data')
+		return [];
+	}
+	const rid = filesAvailable.pop();
+	const filename = `/otazky/${rid}.json`;
+	const req = await fetch(filename);
+	const questions = await req.json();
+	console.log(`stazeno ${questions.length} otazek (${filename})`);
+	return questions;
+}
+
+async function renderQuestion() {
+	const qtarget = document.getElementById('question');
+	const atarget = document.getElementById('answer');
+
+	if (questions.length === 0) {
+		const newQuestions = await getQuestions();
+		if (newQuestions.length === 0) {
+			const cnt = document.getElementById('container');
+			// TODO: pridat nejakej navod jak pridat data
+			cnt.innerText = 'Došla data :-(';
+			return;
+		}
+		questions.push(...newQuestions);
+	}
+	const q = questions.pop();
+	qtarget.innerText = q.question;
+	if (Array.isArray(q.answer)) {
+		atarget.innerText = q.answer.join(' nebo ');
+	} else {
+		atarget.innerText = q.answer;
+	}
+	atarget.style.display = 'none';
+}
+
+const filesAvailable = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+filesAvailable.sort(() => Math.random() - .5);
+// const questionsSeen = new Set(); // TODO: synchronizovat to s local storage
+const questions = [];
+
+
+// set things up
+const nq = document.getElementById('next-question');
+const ans = document.getElementById('get-answer');
+
+nq.addEventListener('click', renderQuestion);
+
+ans.addEventListener('click', () => {
+	document.getElementById('answer').style.display = 'block';
+});
+
+nq.dispatchEvent(new Event('click')); // render the first question upon load
+
+document.addEventListener('keydown', function(event) {
+	const click = new Event('click');
+	if (event.key === 'n') {
+		nq.dispatchEvent(click);
+	}
+
+	if (event.key === 'a') {
+		ans.dispatchEvent(click);
+	}
+});
+
+
+</script>
+<!-- <script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-foobarbaz-1', 'auto');
+	ga('send', 'pageview');
+</script>
+ -->
+</body>
+</html>
+

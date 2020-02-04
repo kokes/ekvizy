@@ -1,0 +1,12 @@
+TODO:
+- licence - na kod a na otazky (MIT, CC0?)
+- searcher (abychom se vyhnuli duplicitam)
+- index.json?
+- GA
+- generovani testu o x otazkach
+- moznost vybrat si narocnost
+- pridat navod jak pridavat otazky
+- pridat navod jak to pustit lokalne (treba python3 -m http.server)
+- google form vcetne consentu
+- admin tooling (rozlozeni otazek do temat, do slozitosti, slozitost a temat, jak casto je vyplnen zdroj atd.)
+- testuj na telefonech
