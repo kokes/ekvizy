@@ -34,16 +34,22 @@
 
 <script type='text/javascript'>
 async function getQuestions() {
-	if (filesAvailable.length === 0) {
-		console.log('dosla data')
-		return [];
+	while (true) {
+		if (filesAvailable.length === 0) {
+			console.log('dosla data')
+			return [];
+		}
+		const rid = filesAvailable.pop();
+		const filename = `/otazky/${rid}.json`;
+		const req = await fetch(filename);
+		if (req.status === 404) {
+			console.error(`chybejici dataset: ${filename}`)
+			continue;
+		}
+		const questions = await req.json();
+		console.log(`stazeno ${questions.length} otazek (${filename})`);
+		return questions;
 	}
-	const rid = filesAvailable.pop();
-	const filename = `/otazky/${rid}.json`;
-	const req = await fetch(filename);
-	const questions = await req.json();
-	console.log(`stazeno ${questions.length} otazek (${filename})`);
-	return questions;
 }
 
 async function renderQuestion() {
