@@ -37,7 +37,7 @@ async function getQuestions() {
 	while (true) {
 		if (filesAvailable.length === 0) {
 			console.log('dosla data')
-			return [];
+			return null;
 		}
 		const rid = filesAvailable.pop();
 		const filename = `/otazky/${rid}.json`;
@@ -47,6 +47,10 @@ async function getQuestions() {
 			continue;
 		}
 		const questions = await req.json();
+		if (questions.length === 0) {
+			console.log(`zadne otazky v ${filename}, preskakuji`);
+			continue;
+		}
 		console.log(`stazeno ${questions.length} otazek (${filename})`);
 		return questions;
 	}
@@ -58,7 +62,7 @@ async function renderQuestion() {
 
 	if (questions.length === 0) {
 		const newQuestions = await getQuestions();
-		if (newQuestions.length === 0) {
+		if (newQuestions === null) {
 			const cnt = document.getElementById('container');
 			// TODO: pridat nejakej navod jak pridat data
 			cnt.innerText = 'Došla data :-(';
@@ -67,6 +71,7 @@ async function renderQuestion() {
 		questions.push(...newQuestions);
 	}
 	const q = questions.pop();
+	console.table(q)
 	qtarget.innerText = q.question;
 	if (Array.isArray(q.answer)) {
 		atarget.innerText = q.answer.join(' nebo ');
